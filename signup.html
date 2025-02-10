@@ -1,0 +1,61 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<form id="signupForm" onsubmit="sendData(event)" class="form">
+    <div class="form-group">
+        <h2>Signup Form</h2>
+        <input type="text" id="username" placeholder="Username: " name="username" class="int" required>
+        <input type="text" id="name" name="name" placeholder="Full Name: " class="int" required>
+        <input type="email" id="email" name="email" placeholder="Email: " class="int" required>
+        <input type="text" id="mobile" name="mobile" placeholder="Mobile: " class="int" required>
+        <input type="password" id="password" name="password" placeholder="Password: " class="int" required>
+        <input type="text" id="referral" name="referral" placeholder="Referral Code (Optional): " class="int">
+        <button type="submit" class="btn">Sign Up</button>
+        <p>Already Have Account <a href="login.html">Click Here</a></p>
+    </div>
+</form>
+<div id="loader" style="display: none;">
+    <div class="loader"></div>
+</div>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("max_local")) {
+            window.location.href = "index.html";
+        }
+    };
+
+    function sendData(event) {
+        event.preventDefault();
+        document.getElementById("loader").style.display = "flex";
+        const form = document.getElementById("signupForm");
+        const formData = new FormData(form);
+
+        fetch("https://script.google.com/macros/s/AKfycbzKXgKYaNm3HLuOuixgElKNw5N_Dru8VzuEGaB8NKy68g8FmbcSTFv5ettqs42Uhxji/exec", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById("loader").style.display = "none";
+            if (data === "DUPLICATE_USERNAME") {
+                alert("Username already exists! Please choose a different username.");
+            } else if (data === "DUPLICATE_EMAIL") {
+                alert("Email already exists! Please use a different email.");
+            } else if (data === "BANNED_USER") {
+                alert("Referral Code User Is Banned.");
+            } else if (data === "Success") {
+                localStorage.setItem("max_local", formData.get("username"));
+                alert("Signup successful!");
+                window.location.href = "index.html";
+            } else {
+                alert("Error submitting the form. Please try again.");
+            }
+        })
+        .catch(error => {
+            document.getElementById("loader").style.display = "none";
+            console.error("Error:", error);
+            alert("Error submitting the form!");
+        });
+    }
+</script>

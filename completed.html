@@ -1,0 +1,60 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="loader.css">
+<style>
+    .header { justify-content: center; }
+    #loader { display: flex;}
+    .card { display: flex; flex-direction: column; gap: 10px; margin: 20px 20px 0px 20px; border-radius: 12px; padding: 20px; background: #022952;}
+    p > strong { font-weight: 400; font-size: 18px;}
+    .card > .baap > p { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 5px; width: 80px; height: 80px; background: #031d38; border-radius: 125px; padding: 12px;}
+    .baap { display: flex; justify-content: space-around;}
+    .title { font-size: 24px; font-weight: 600;}
+</style>
+<div class="header">
+    <h2>Completed</h2>
+</div>
+<div id="loader"><div class="loader"></div></div>
+<div id="completedList" style="display: none;"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const username = localStorage.getItem("max_local");
+
+        if (!username) {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("completedList").innerHTML = "<p>User not logged in.</p>";
+            document.getElementById("completedList").style.display = "block";
+            return;
+        }
+
+        fetch("https://script.google.com/macros/s/AKfycbxs-wOhD2n8TtbkaIL8uRBQU11YGdWZfSdYCF5eO7nHixv2OnmNft-Uha7nZTjk4VhRTg/exec?username=" + username)
+            .then(response => response.json())
+            .then(data => {
+                let html = "";
+                if (data.success && data.transactions.length > 0) {
+                    data.transactions.forEach(t => {
+                        html += `
+                            <div class="card">
+                                <p><strong class="title">${t.detail1}</strong></p>
+                                <div class="baap">
+                                <p><strong>Entry</strong> ${t.detail2}</p>
+                                <p><strong>Winning</strong> ${t.detail3}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    html = "<p>No completed transactions found.</p>";
+                }
+                document.getElementById("completedList").innerHTML = html;
+            })
+            .catch(() => {
+                document.getElementById("completedList").innerHTML = "<p>Error fetching data.</p>";
+            })
+            .finally(() => {
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("completedList").style.display = "block";
+            });
+    });
+</script>
